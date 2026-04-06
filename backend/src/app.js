@@ -1,7 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-
-// AGREGA ESTA LÍNEA:
 require("./config/mysqlDb");
 
 const authRoutes    = require("./routes/authRoutes");

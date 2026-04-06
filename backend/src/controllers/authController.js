@@ -5,18 +5,19 @@ const jwt = require("jsonwebtoken");
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  // ── Usuario temporal para desarrollo (quitar cuando MongoDB esté listo) ──
-  if (email === "cocina@mesasmart.com" && password === "cocina123") {
-    const token = jwt.sign(
-      { id: "temp-kitchen", role: "kitchen" },
-      process.env.JWT_SECRET || "temp_secret",
-      { expiresIn: "8h" }
-    );
-    return res.json({ token, role: "kitchen" });
-  }
-  // ────────────────────────────────────────────────────────────────────────
-
   try {
+    // ── MOVIDO AQUÍ DENTRO: Usuario temporal para desarrollo ──
+    if (email === "cocina@mesasmart.com" && password === "cocina123") {
+      const token = jwt.sign(
+        { id: "temp-kitchen", role: "kitchen" },
+        process.env.JWT_SECRET || "temp_secret",
+        { expiresIn: "8h" }
+      );
+      return res.json({ token, role: "kitchen" });
+    }
+    // ─────────────────────────────────────────────────────────
+
+    // Si no es el usuario temporal, buscamos en la base de datos
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: "Usuario no existe" });
 
@@ -29,7 +30,9 @@ exports.login = async (req, res) => {
       { expiresIn: "8h" }
     );
     res.json({ token, role: user.role });
+
   } catch (error) {
+    console.error(error); // Es buena práctica ver el error real en la consola
     res.status(500).json({ msg: "Error del servidor" });
   }
 };
